@@ -12,6 +12,8 @@ jobs:
   lint-typecheck-test:
     name: Lint, Type Check & Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
