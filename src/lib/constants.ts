@@ -8,8 +8,8 @@ export const MAX_FILE_SIZE_MB = 10;
 
 export const SUPPORTED_FILE_EXTENSIONS = ['.pdf', '.ofx'] as const;
 export const SUPPORTED_MIME_TYPES = {
-  pdf: ['application/pdf'],
-  ofx: ['text/ofx', 'application/x-ofx'],
+  pdf: ['application/pdf'] as readonly string[],
+  ofx: ['text/ofx', 'application/x-ofx'] as readonly string[],
 } as const;
 
 // Error messages
@@ -49,8 +49,11 @@ export const ITAU_LABELS = {
   TOTAL_LABEL_ALT: 'O total da sua fatura é:',
   TRANSACTIONS_HEADER: 'Lançamentos:',
   TRANSACTIONS_HEADER_ALT: 'Lançamentos no cartão',
+  TRANSACTIONS_BASE: 'Lançamentos', // Base prefix for detection
   TOTAL_TRANSACTIONS_PREFIX: 'Total dos lançamentos',
+  TOTAL_BASE: 'Total', // Base prefix for detection
   PAYMENT_INFO_PREFIX: 'Caso você pague',
+  PAYMENT_BASE: 'Caso', // Base prefix for detection
   TABLE_HEADER_1: 'DATA ESTABELECIMENTO VALOR EM R$',
   TABLE_HEADER_2: 'DATA VALOR EM R$',
 } as const;

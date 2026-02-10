@@ -24,10 +24,7 @@ export function hasValidExtension(fileName: string): boolean {
  */
 export function isPdfFile(file: File): boolean {
   const fileName = file.name.toLowerCase();
-  return (
-    fileName.endsWith('.pdf') ||
-    SUPPORTED_MIME_TYPES.pdf.includes(file.type as 'application/pdf')
-  );
+  return fileName.endsWith('.pdf') || SUPPORTED_MIME_TYPES.pdf.includes(file.type);
 }
 
 /**
@@ -35,10 +32,7 @@ export function isPdfFile(file: File): boolean {
  */
 export function isOfxFile(file: File): boolean {
   const fileName = file.name.toLowerCase();
-  return (
-    fileName.endsWith('.ofx') ||
-    SUPPORTED_MIME_TYPES.ofx.includes(file.type as 'text/ofx' | 'application/x-ofx')
-  );
+  return fileName.endsWith('.ofx') || SUPPORTED_MIME_TYPES.ofx.includes(file.type);
 }
 
 /**

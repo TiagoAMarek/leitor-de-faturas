@@ -98,9 +98,9 @@ export function parseItauStatement(text: string): ParsedStatement {
       if (
         nextLine &&
         !ITAU_PATTERNS.DATE_PREFIX.test(nextLine) &&
-        !nextLine.startsWith(ITAU_LABELS.TRANSACTIONS_HEADER.split(':')[0]) &&
-        !nextLine.startsWith(ITAU_LABELS.TOTAL_TRANSACTIONS_PREFIX.split(' ')[0]) &&
-        !nextLine.startsWith(ITAU_LABELS.PAYMENT_INFO_PREFIX.split(' ')[0])
+        !nextLine.startsWith(ITAU_LABELS.TRANSACTIONS_BASE) &&
+        !nextLine.startsWith(ITAU_LABELS.TOTAL_BASE) &&
+        !nextLine.startsWith(ITAU_LABELS.PAYMENT_BASE)
       ) {
         const parts = nextLine.split(/\s{2,}/);
         const rawCat = parts[0] || '';
