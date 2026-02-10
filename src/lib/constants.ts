@@ -5,17 +5,18 @@
 // File validation constants
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-export const SUPPORTED_FILE_EXTENSIONS = ['.pdf', '.ofx'] as const;
+export const SUPPORTED_FILE_EXTENSIONS = ['.pdf', '.ofx', '.csv'] as const;
 export const SUPPORTED_MIME_TYPES = {
   pdf: ['application/pdf'] as readonly string[],
   ofx: ['text/ofx', 'application/x-ofx'] as readonly string[],
+  csv: ['text/csv', 'application/vnd.ms-excel'] as readonly string[],
 } as const;
 
 // Error messages
 export const ERROR_MESSAGES = {
   FILE_TOO_LARGE: `Arquivo muito grande. O limite é ${MAX_FILE_SIZE / (1024 * 1024)} MB.`,
   NO_FILE_UPLOADED: 'Nenhum arquivo enviado',
-  INVALID_FILE_FORMAT: 'Formato inválido. Envie um arquivo PDF ou OFX.',
+  INVALID_FILE_FORMAT: 'Formato inválido. Envie um arquivo PDF, OFX ou CSV.',
   EMPTY_FILE_CONTENT: 'Não foi possível extrair o conteúdo do arquivo.',
   NO_TRANSACTIONS_FOUND: 'Nenhum lançamento encontrado no arquivo. Verifique se é uma fatura ou extrato válido.',
   PROCESSING_ERROR: 'Erro ao processar o arquivo. Tente novamente.',
@@ -38,6 +39,16 @@ export const OFX_DATE_INDICES = {
   MONTH_START: 4,
   MONTH_END: 6,
 } as const;
+
+// CSV Parser constants
+export const CSV_REQUIRED_HEADERS = ['data', 'lancamento', 'valor'] as const;
+export const CSV_HEADER_MARKERS = [
+  'data,lançamento,valor',
+  'data,lancamento,valor',
+  'data;lançamento;valor',
+  'data;lancamento;valor',
+] as const;
+export const CSV_IGNORED_DESCRIPTIONS = ['pagamento debito automatico'] as const;
 
 // Itaú Parser constants
 export const ITAU_LABELS = {
@@ -80,6 +91,7 @@ export const ITAU_PATTERNS = {
 export const BANK_DETECTION = {
   OFX_MARKERS: ['<OFX>', 'OFXHEADER'],
   ITAU_MARKERS: ['Itaú', 'itau', 'ITAÚ', 'Cartões'],
+  CSV_MARKERS: CSV_HEADER_MARKERS,
 } as const;
 
 // UI constants

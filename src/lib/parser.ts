@@ -17,4 +17,4 @@ export type { Transaction, ParsedStatement } from './types';
 export { getCategoryIcon, getCategoryColor, detectCategory, inferCategory } from './categories';
 
 // Parsers
-export { parseStatement, parseItauStatement, parseOfxStatement } from './parsers';
+export { parseStatement, parseItauStatement, parseOfxStatement, parseCsvStatement } from './parsers';
