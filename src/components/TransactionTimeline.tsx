@@ -1,6 +1,6 @@
-'use client';
-
+import { useCallback } from 'react';
 import { ParsedStatement, getCategoryIcon, getCategoryColor } from '@/lib/parser';
+import { generateOfx } from '@/lib/ofx-exporter';
 import styles from './TransactionTimeline.module.css';
 
 interface Props {
@@ -37,6 +37,19 @@ function formatCurrency(value: number): string {
 export default function TransactionTimeline({ statement }: Props) {
   const grouped = groupByDay(statement.transactions);
 
+  const handleExportOfx = useCallback(() => {
+    const content = generateOfx(statement);
+    const blob = new Blob([content], { type: 'application/x-ofx' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'fatura.ofx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [statement]);
+
   // Category totals for summary
   const categoryTotals: Record<string, number> = {};
   for (const tx of statement.transactions) {
@@ -62,6 +75,14 @@ export default function TransactionTimeline({ statement }: Props) {
             <span className={styles.totalLabel}>Total da fatura</span>
             <span className={styles.totalAmount}>{formatCurrency(statement.totalAmount)}</span>
           </div>
+          <button className={styles.exportButton} onClick={handleExportOfx} title="Exportar OFX">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Exportar OFX
+          </button>
         </div>
 
         <div className={styles.metaRow}>

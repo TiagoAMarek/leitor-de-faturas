@@ -255,4 +255,29 @@ describe('E2E: Upload Flow', () => {
     // Loading indicator should be gone
     expect(screen.queryByText(/Processando fatura/i)).not.toBeInTheDocument();
   });
+
+  it('should show "Exportar OFX" button after successful upload', async () => {
+    const user = userEvent.setup();
+    const mockResponse = createItauMockResponse();
+
+    vi.mocked(fetch).mockResolvedValueOnce(
+      mockFetchSuccess(mockResponse) as Response,
+    );
+
+    render(<Home />);
+
+    const itauText = loadFixture('itau-statement.txt');
+    const file = createMockFile(itauText, 'fatura.pdf', 'application/pdf');
+    const input = screen.getByTestId('file-input');
+    await user.upload(input, file);
+
+    // Wait for results
+    await waitFor(() => {
+      expect(screen.getByText('Itaú')).toBeInTheDocument();
+    }, { timeout: 3000 });
+
+    // Verify export button is visible
+    const exportButton = screen.getByRole('button', { name: /exportar ofx/i });
+    expect(exportButton).toBeInTheDocument();
+  });
 });
