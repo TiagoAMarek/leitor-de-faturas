@@ -1,7 +1,12 @@
 import type { ParsedStatement, Transaction } from '../types';
 import { detectCategory, inferCategory } from '../categories';
 import { cleanDescription, formatCity, parseAmount } from '../utils';
-import { ITAU_LABELS, ITAU_PATTERNS } from '../constants';
+import {
+  ITAU_LABELS,
+  ITAU_PATTERNS,
+  ITAU_TRANSACTION_START_MARKERS,
+  ITAU_TRANSACTION_END_MARKERS,
+} from '../constants';
 
 /**
  * Parse an Itaú credit card statement from extracted PDF text.
@@ -53,18 +58,12 @@ export function parseItauStatement(text: string): ParsedStatement {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    if (
-      line.startsWith(ITAU_LABELS.TRANSACTIONS_HEADER) ||
-      line.startsWith(ITAU_LABELS.TRANSACTIONS_HEADER_ALT)
-    ) {
+    if (ITAU_TRANSACTION_START_MARKERS.some((marker) => line.startsWith(marker))) {
       inTransactionSection = true;
       continue;
     }
 
-    if (
-      line.startsWith(ITAU_LABELS.TOTAL_TRANSACTIONS_PREFIX) ||
-      line.startsWith(ITAU_LABELS.PAYMENT_INFO_PREFIX)
-    ) {
+    if (ITAU_TRANSACTION_END_MARKERS.some((marker) => line.startsWith(marker))) {
       inTransactionSection = false;
       continue;
     }

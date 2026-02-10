@@ -23,16 +23,18 @@ export function hasValidExtension(fileName: string): boolean {
  * Check if file is a PDF based on extension or MIME type.
  */
 export function isPdfFile(file: File): boolean {
-  const fileName = file.name.toLowerCase();
-  return fileName.endsWith('.pdf') || SUPPORTED_MIME_TYPES.pdf.includes(file.type);
+  return (
+    hasFileExtension(file.name, '.pdf') || SUPPORTED_MIME_TYPES.pdf.includes(file.type)
+  );
 }
 
 /**
  * Check if file is an OFX based on extension or MIME type.
  */
 export function isOfxFile(file: File): boolean {
-  const fileName = file.name.toLowerCase();
-  return fileName.endsWith('.ofx') || SUPPORTED_MIME_TYPES.ofx.includes(file.type);
+  return (
+    hasFileExtension(file.name, '.ofx') || SUPPORTED_MIME_TYPES.ofx.includes(file.type)
+  );
 }
 
 /**
@@ -40,4 +42,11 @@ export function isOfxFile(file: File): boolean {
  */
 export function isFileTypeSupported(file: File): boolean {
   return isPdfFile(file) || isOfxFile(file);
+}
+
+/**
+ * Helper function to check if a filename has a specific extension.
+ */
+function hasFileExtension(fileName: string, extension: string): boolean {
+  return fileName.toLowerCase().endsWith(extension);
 }

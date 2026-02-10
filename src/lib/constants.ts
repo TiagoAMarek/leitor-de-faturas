@@ -49,14 +49,26 @@ export const ITAU_LABELS = {
   TOTAL_LABEL_ALT: 'O total da sua fatura é:',
   TRANSACTIONS_HEADER: 'Lançamentos:',
   TRANSACTIONS_HEADER_ALT: 'Lançamentos no cartão',
-  TRANSACTIONS_BASE: 'Lançamentos', // Base prefix for detection
+  // Base prefixes used for nextLine detection (to avoid runtime string manipulation)
+  TRANSACTIONS_BASE: 'Lançamentos', // Matches any line starting with "Lançamentos"
   TOTAL_TRANSACTIONS_PREFIX: 'Total dos lançamentos',
-  TOTAL_BASE: 'Total', // Base prefix for detection
+  TOTAL_BASE: 'Total', // Matches any line starting with "Total"
   PAYMENT_INFO_PREFIX: 'Caso você pague',
-  PAYMENT_BASE: 'Caso', // Base prefix for detection
+  PAYMENT_BASE: 'Caso', // Matches any line starting with "Caso"
   TABLE_HEADER_1: 'DATA ESTABELECIMENTO VALOR EM R$',
   TABLE_HEADER_2: 'DATA VALOR EM R$',
 } as const;
+
+// Arrays for checking multiple values with .some()
+export const ITAU_TRANSACTION_START_MARKERS = [
+  'Lançamentos:',
+  'Lançamentos no cartão',
+] as const;
+
+export const ITAU_TRANSACTION_END_MARKERS = [
+  'Total dos lançamentos',
+  'Caso você pague',
+] as const;
 
 export const ITAU_PATTERNS = {
   TRANSACTION_LINE: /^(\d{2}\/\d{2})\s+(.+?)\s+([\d.,]+)$/,
