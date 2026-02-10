@@ -1,0 +1,43 @@
+Cartão XXXX XXXX XXXX 1234
+Titular JOÃO DA SILVA
+Vencimento: 15/12/2024
+
+Lançamentos:
+
+DATA ESTABELECIMENTO VALOR EM R$
+01/11 FARMACIA PANVEL 04/06 125,50
+saúde        Porto Alegre
+03/11 SUPERMERCADO ZAFFARI 234,80
+supermercado Porto Alegre
+05/11 RESTAURANTE FAZENDA 89,90
+restaurante  Porto Alegre
+07/11 UBER TRIP 25,30
+transporte   São Paulo
+08/11 NETFLIX 45,90
+assinatura   São Paulo
+10/11 POSTO IPIRANGA 180,00
+transporte   Porto Alegre
+12/11 CINEMA CINEMARK 56,00
+lazer        Porto Alegre
+15/11 MERCADO LIVRE 320,45
+outros       São Paulo
+18/11 AMAZON BRSAO P 03/03 206,33
+outros       São Paulo
+20/11 PADARIA CONFEITARIA 32,50
+restaurante  Porto Alegre
+22/11 DROGA RAIA 78,90
+saúde        Porto Alegre
+25/11 ZARA FASHION 299,99
+vestuário    São Paulo
+28/11 UBER EATS 67,80
+restaurante  Porto Alegre
+29/11 MARKET4U 156,70
+supermercado Porto Alegre
+30/11 SPOTIFY PREMIUM 21,90
+assinatura   São Paulo
+
+Total dos lançamentos
+1.942,97
+
+Total desta fatura
+1.942,97

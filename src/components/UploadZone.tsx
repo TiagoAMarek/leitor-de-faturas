@@ -62,6 +62,7 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
         accept=".pdf,.ofx"
         className={styles.hiddenInput}
         onChange={handleInputChange}
+        data-testid="file-input"
       />
 
       {isLoading ? (
