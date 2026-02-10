@@ -3,6 +3,8 @@
 import { useCallback, useState, useRef } from 'react';
 import styles from './UploadZone.module.css';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
 interface UploadZoneProps {
   onFileSelected: (file: File) => void;
   isLoading: boolean;
@@ -14,6 +16,10 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((file: File) => {
+    if (file.size > MAX_FILE_SIZE) {
+      alert('Arquivo muito grande. O limite é 10 MB.');
+      return;
+    }
     setFileName(file.name);
     onFileSelected(file);
   }, [onFileSelected]);

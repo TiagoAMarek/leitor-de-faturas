@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ParsedStatement, getCategoryIcon, getCategoryColor } from '@/lib/parser';
 import { generateOfx } from '@/lib/ofx-exporter';
 import styles from './TransactionTimeline.module.css';
@@ -35,7 +35,7 @@ function formatCurrency(value: number): string {
 }
 
 export default function TransactionTimeline({ statement }: Props) {
-  const grouped = groupByDay(statement.transactions);
+  const grouped = useMemo(() => groupByDay(statement.transactions), [statement.transactions]);
 
   const handleExportOfx = useCallback(() => {
     const content = generateOfx(statement);
@@ -51,11 +51,14 @@ export default function TransactionTimeline({ statement }: Props) {
   }, [statement]);
 
   // Category totals for summary
-  const categoryTotals: Record<string, number> = {};
-  for (const tx of statement.transactions) {
-    categoryTotals[tx.category] = (categoryTotals[tx.category] || 0) + tx.amount;
-  }
-  const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+  const { categoryTotals, sortedCategories } = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const tx of statement.transactions) {
+      totals[tx.category] = (totals[tx.category] || 0) + tx.amount;
+    }
+    const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    return { categoryTotals: totals, sortedCategories: sorted };
+  }, [statement.transactions]);
 
   return (
     <div className={styles.container}>

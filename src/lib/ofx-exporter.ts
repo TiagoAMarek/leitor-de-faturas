@@ -1,4 +1,14 @@
-import type { ParsedStatement } from './parser';
+import type { ParsedStatement } from './types';
+
+/**
+ * Escape special XML/SGML characters in user-supplied content.
+ */
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 /**
  * Infer the year from the dueDate field (DD/MM/YYYY format).
@@ -61,7 +71,7 @@ export function generateOfx(statement: ParsedStatement): string {
         `<DTPOSTED>${dateOfx}</DTPOSTED>`,
         `<TRNAMT>${amount}</TRNAMT>`,
         `<FITID>${fitId}</FITID>`,
-        `<MEMO>${tx.description}</MEMO>`,
+        `<MEMO>${escapeXml(tx.description)}</MEMO>`,
         '</STMTTRN>',
       ].join('\n');
     })
@@ -84,7 +94,7 @@ export function generateOfx(statement: ParsedStatement): string {
     '<CCSTMTRS>',
     '<CURDEF>BRL</CURDEF>',
     '<CCACCTFROM>',
-    `<ACCTID>${statement.cardNumber}</ACCTID>`,
+    `<ACCTID>${escapeXml(statement.cardNumber)}</ACCTID>`,
     '</CCACCTFROM>',
     '<BANKTRANLIST>',
     transactions,
@@ -95,7 +105,7 @@ export function generateOfx(statement: ParsedStatement): string {
     '</CCSTMTRS>',
     '</CCSTMTTRNRS>',
     '</CREDITCARDMSGSRSV1>',
-    `<FI><ORG>${statement.bankName}</ORG></FI>`,
+    `<FI><ORG>${escapeXml(statement.bankName)}</ORG></FI>`,
     '</OFX>',
   ].join('\n');
 

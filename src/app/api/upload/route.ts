@@ -3,18 +3,29 @@ import { PDFParse } from 'pdf-parse';
 import { getPath } from 'pdf-parse/worker';
 import { parseStatement } from '@/lib/parser';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
 // Configure the worker for Node.js / Next.js server-side usage
 PDFParse.setWorker(getPath());
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File | null;
+    const raw = formData.get('file');
 
-    if (!file) {
+    if (!raw || !(raw instanceof File)) {
       return NextResponse.json(
         { error: 'Nenhum arquivo enviado' },
         { status: 400 }
+      );
+    }
+
+    const file = raw;
+
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'Arquivo muito grande. O limite é 10 MB.' },
+        { status: 413 }
       );
     }
 

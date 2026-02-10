@@ -28,10 +28,29 @@ pnpm lint
 
 ## Testing
 
-Currently, no test framework is configured. When adding tests:
-- Suggested framework: Jest + React Testing Library
-- Place tests in `__tests__` directories or name them `*.test.ts` / `*.spec.ts`
-- Run single test: `jest path/to/test.test.ts` (once configured)
+Testing uses **Vitest 4**, **React Testing Library**, and **happy-dom** as the DOM environment.
+
+```bash
+# Run all tests in watch mode
+pnpm test
+
+# Single run (CI)
+pnpm test:run
+
+# E2E upload flow tests
+pnpm test:e2e
+
+# Coverage report
+pnpm test:coverage
+
+# Vitest UI
+pnpm test:ui
+```
+
+- Place unit tests in `test/` or colocated as `*.test.ts` / `*.spec.ts`
+- E2E tests go in `test/e2e/`
+- Test helpers and mock factories live in `test/helpers/`
+- Fixture files (sample PDFs/OFX) go in `test/fixtures/`
 
 ## Code Style Guidelines
 
@@ -47,13 +66,13 @@ Currently, no test framework is configured. When adding tests:
 
 ```typescript
 // External packages first
-import { useState } from 'react';
-import { NextResponse } from 'next/server';
+import { useState } from "react";
+import { NextResponse } from "next/server";
 
 // Internal imports using @ alias
-import { parseStatement } from '@/lib/parser';
-import type { ParsedStatement } from '@/lib/parser';
-import styles from './Component.module.css';
+import { parseStatement } from "@/lib/parser";
+import type { ParsedStatement } from "@/lib/parser";
+import styles from "./Component.module.css";
 ```
 
 **Path Alias:** Use `@/*` for `./src/*` imports
@@ -73,11 +92,12 @@ src/
 ### Component Structure
 
 **Client Components:**
-```typescript
-'use client';
 
-import { useState } from 'react';
-import styles from './Component.module.css';
+```typescript
+"use client";
+
+import { useState } from "react";
+import styles from "./Component.module.css";
 
 interface ComponentProps {
   onAction: (data: string) => void;
@@ -85,24 +105,25 @@ interface ComponentProps {
 }
 
 export default function Component({ onAction, isLoading }: ComponentProps) {
-  const [state, setState] = useState<string>('');
+  const [state, setState] = useState<string>("");
   // ... implementation
 }
 ```
 
 **Server Components/API Routes:**
+
 ```typescript
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     // ... implementation
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error description:', error);
+    console.error("Error description:", error);
     return NextResponse.json(
-      { error: 'User-friendly error message' },
-      { status: 500 }
+      { error: "User-friendly error message" },
+      { status: 500 },
     );
   }
 }
@@ -120,6 +141,7 @@ export async function POST(request: Request) {
 ### Type Definitions
 
 Always define interfaces for:
+
 - Component props
 - API response/request bodies
 - Complex data structures
@@ -138,32 +160,34 @@ export interface Transaction {
 ### Error Handling
 
 **API Routes:**
+
 ```typescript
 try {
   // ... operation
 } catch (error) {
-  console.error('Descriptive context:', error);
+  console.error("Descriptive context:", error);
   return NextResponse.json(
-    { error: 'Portuguese user-friendly message' },
-    { status: 400 | 422 | 500 }
+    { error: "Portuguese user-friendly message" },
+    { status: 400 | 422 | 500 },
   );
 }
 ```
 
 **Client Components:**
+
 ```typescript
 try {
-  const res = await fetch('/api/endpoint', { method: 'POST', body: formData });
+  const res = await fetch("/api/endpoint", { method: "POST", body: formData });
   const data = await res.json();
-  
+
   if (!res.ok) {
-    setError(data.error || 'Mensagem padrão');
+    setError(data.error || "Mensagem padrão");
     return;
   }
-  
+
   // ... handle success
 } catch {
-  setError('Erro de conexão. Tente novamente.');
+  setError("Erro de conexão. Tente novamente.");
 } finally {
   setIsLoading(false);
 }
@@ -207,6 +231,7 @@ export function parseStatement(text: string): ParsedStatement {
 ### Parser Development
 
 When adding support for new banks:
+
 1. Create a new parser function (e.g., `parseNubankStatement`)
 2. Add detection logic to `parseStatement`
 3. Follow existing pattern: extract metadata first, then transactions
