@@ -3,7 +3,7 @@ import { PDFParse } from 'pdf-parse';
 import { getPath } from 'pdf-parse/worker';
 import { parseStatement } from '@/lib/parser';
 import { ERROR_MESSAGES } from '@/lib/constants';
-import { isFileSizeValid, isPdfFile, isOfxFile } from '@/lib/validators';
+import { isFileSizeValid, isPdfFile, isOfxFile, isCsvFile } from '@/lib/validators';
 
 // Configure the worker for Node.js / Next.js server-side usage
 PDFParse.setWorker(getPath());
@@ -31,8 +31,9 @@ export async function POST(request: Request) {
 
     const isPdf = isPdfFile(file);
     const isOfx = isOfxFile(file);
+    const isCsv = isCsvFile(file);
 
-    if (!isPdf && !isOfx) {
+    if (!isPdf && !isOfx && !isCsv) {
       return NextResponse.json(
         { error: ERROR_MESSAGES.INVALID_FILE_FORMAT },
         { status: 400 }
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
         await parser.destroy();
       }
     } else {
-      // OFX is text-based
+      // OFX/CSV are text-based
       fullText = await file.text();
     }
 

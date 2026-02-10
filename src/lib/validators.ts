@@ -38,10 +38,19 @@ export function isOfxFile(file: File): boolean {
 }
 
 /**
- * Check if file type is supported (PDF or OFX).
+ * Check if file is a CSV based on extension or MIME type.
+ */
+export function isCsvFile(file: File): boolean {
+  return (
+    hasFileExtension(file.name, '.csv') || SUPPORTED_MIME_TYPES.csv.includes(file.type)
+  );
+}
+
+/**
+ * Check if file type is supported (PDF, OFX, or CSV).
  */
 export function isFileTypeSupported(file: File): boolean {
-  return isPdfFile(file) || isOfxFile(file);
+  return isPdfFile(file) || isOfxFile(file) || isCsvFile(file);
 }
 
 /**
