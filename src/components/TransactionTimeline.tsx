@@ -36,12 +36,58 @@ function formatCurrency(value: number): string {
   });
 }
 
+function stripAccents(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function sanitizeFilePart(value: string): string {
+  return stripAccents(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function inferYear(dueDate: string): number {
+  const parts = dueDate.split('/');
+  if (parts.length === 3) {
+    const year = parseInt(parts[2], 10);
+    if (!Number.isNaN(year)) return year;
+  }
+  return new Date().getFullYear();
+}
+
+function buildPeriodLabel(statement: ParsedStatement): string {
+  if (statement.transactions.length === 0) return '';
+
+  const year = inferYear(statement.dueDate);
+  const months = statement.transactions
+    .map((tx) => tx.date.split('/')[1])
+    .map((month) => parseInt(month, 10))
+    .filter((month) => !Number.isNaN(month));
+
+  if (months.length === 0) return String(year);
+
+  const minMonth = Math.min(...months);
+  const maxMonth = Math.max(...months);
+  const start = `${year}-${String(minMonth).padStart(2, '0')}`;
+  if (minMonth === maxMonth) return start;
+  const end = `${year}-${String(maxMonth).padStart(2, '0')}`;
+  return `${start}_a_${end}`;
+}
+
+function buildOfxFilename(statement: ParsedStatement): string {
+  const bankPart = sanitizeFilePart(statement.bankName || 'fatura');
+  const periodPart = buildPeriodLabel(statement);
+  if (!periodPart) return UI_CONSTANTS.DEFAULT_OFX_FILENAME;
+  return `${bankPart}-${periodPart}.ofx`;
+}
+
 export default function TransactionTimeline({ statement }: Props) {
   const grouped = useMemo(() => groupByDay(statement.transactions), [statement.transactions]);
 
   const handleExportOfx = useCallback(() => {
     const content = generateOfx(statement);
-    downloadTextFile(content, UI_CONSTANTS.DEFAULT_OFX_FILENAME, 'application/x-ofx');
+    downloadTextFile(content, buildOfxFilename(statement), 'application/x-ofx');
   }, [statement]);
 
   // Category totals for summary
