@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { PDFParse } from 'pdf-parse';
 import { getPath } from 'pdf-parse/worker';
 import { parseStatement } from '@/lib/parser';
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+import { ERROR_MESSAGES } from '@/lib/constants';
+import { isFileSizeValid, isPdfFile, isOfxFile } from '@/lib/validators';
 
 // Configure the worker for Node.js / Next.js server-side usage
 PDFParse.setWorker(getPath());
@@ -15,27 +15,26 @@ export async function POST(request: Request) {
 
     if (!raw || !(raw instanceof File)) {
       return NextResponse.json(
-        { error: 'Nenhum arquivo enviado' },
+        { error: ERROR_MESSAGES.NO_FILE_UPLOADED },
         { status: 400 }
       );
     }
 
     const file = raw;
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (!isFileSizeValid(file)) {
       return NextResponse.json(
-        { error: 'Arquivo muito grande. O limite é 10 MB.' },
+        { error: ERROR_MESSAGES.FILE_TOO_LARGE },
         { status: 413 }
       );
     }
 
-    const fileName = file.name.toLowerCase();
-    const isPdf = fileName.endsWith('.pdf') || file.type === 'application/pdf';
-    const isOfx = fileName.endsWith('.ofx') || file.type === 'text/ofx' || file.type === 'application/x-ofx';
+    const isPdf = isPdfFile(file);
+    const isOfx = isOfxFile(file);
 
     if (!isPdf && !isOfx) {
       return NextResponse.json(
-        { error: 'Formato inválido. Envie um arquivo PDF ou OFX.' },
+        { error: ERROR_MESSAGES.INVALID_FILE_FORMAT },
         { status: 400 }
       );
     }
@@ -60,7 +59,7 @@ export async function POST(request: Request) {
 
     if (!fullText.trim()) {
       return NextResponse.json(
-        { error: 'Não foi possível extrair o conteúdo do arquivo.' },
+        { error: ERROR_MESSAGES.EMPTY_FILE_CONTENT },
         { status: 422 }
       );
     }
@@ -69,7 +68,7 @@ export async function POST(request: Request) {
 
     if (statement.transactions.length === 0) {
       return NextResponse.json(
-        { error: 'Nenhum lançamento encontrado no arquivo. Verifique se é uma fatura ou extrato válido.' },
+        { error: ERROR_MESSAGES.NO_TRANSACTIONS_FOUND },
         { status: 422 }
       );
     }
@@ -78,7 +77,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error processing file:', error);
     return NextResponse.json(
-      { error: 'Erro ao processar o arquivo. Tente novamente.' },
+      { error: ERROR_MESSAGES.PROCESSING_ERROR },
       { status: 500 }
     );
   }

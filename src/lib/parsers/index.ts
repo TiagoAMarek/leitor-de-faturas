@@ -1,6 +1,7 @@
 import type { ParsedStatement } from '../types';
 import { parseItauStatement } from './itau';
 import { parseOfxStatement } from './ofx';
+import { BANK_DETECTION } from '../constants';
 
 export { parseItauStatement } from './itau';
 export { parseOfxStatement } from './ofx';
@@ -11,17 +12,12 @@ export { parseOfxStatement } from './ofx';
  */
 export function parseStatement(text: string): ParsedStatement {
   // Detect OFX
-  if (text.includes('<OFX>') || text.includes('OFXHEADER')) {
+  if (BANK_DETECTION.OFX_MARKERS.some((marker) => text.includes(marker))) {
     return parseOfxStatement(text);
   }
 
   // Detect Itaú PDF
-  if (
-    text.includes('Itaú') ||
-    text.includes('itau') ||
-    text.includes('ITAÚ') ||
-    text.includes('Cartões')
-  ) {
+  if (BANK_DETECTION.ITAU_MARKERS.some((marker) => text.includes(marker))) {
     return parseItauStatement(text);
   }
 

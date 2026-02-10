@@ -2,8 +2,8 @@
 
 import { useCallback, useState, useRef } from 'react';
 import styles from './UploadZone.module.css';
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+import { ERROR_MESSAGES } from '@/lib/constants';
+import { isFileSizeValid, hasValidExtension } from '@/lib/validators';
 
 interface UploadZoneProps {
   onFileSelected: (file: File) => void;
@@ -16,8 +16,8 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((file: File) => {
-    if (file.size > MAX_FILE_SIZE) {
-      alert('Arquivo muito grande. O limite é 10 MB.');
+    if (!isFileSizeValid(file)) {
+      alert(ERROR_MESSAGES.FILE_TOO_LARGE);
       return;
     }
     setFileName(file.name);
@@ -28,11 +28,8 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file) {
-      const fileName = file.name.toLowerCase();
-      if (fileName.endsWith('.pdf') || fileName.endsWith('.ofx')) {
-        handleFile(file);
-      }
+    if (file && hasValidExtension(file.name)) {
+      handleFile(file);
     }
   }, [handleFile]);
 

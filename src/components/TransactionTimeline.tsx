@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { ParsedStatement, getCategoryIcon, getCategoryColor } from '@/lib/parser';
 import { generateOfx } from '@/lib/ofx-exporter';
+import { downloadTextFile } from '@/lib/file-utils';
+import { UI_CONSTANTS } from '@/lib/constants';
 import styles from './TransactionTimeline.module.css';
 
 interface Props {
@@ -39,15 +41,7 @@ export default function TransactionTimeline({ statement }: Props) {
 
   const handleExportOfx = useCallback(() => {
     const content = generateOfx(statement);
-    const blob = new Blob([content], { type: 'application/x-ofx' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'fatura.ofx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    downloadTextFile(content, UI_CONSTANTS.DEFAULT_OFX_FILENAME, 'application/x-ofx');
   }, [statement]);
 
   // Category totals for summary
@@ -125,7 +119,7 @@ export default function TransactionTimeline({ statement }: Props) {
           <div
             key={group.day}
             className={styles.dayGroup}
-            style={{ animationDelay: `${groupIdx * 60}ms` }}
+            style={{ animationDelay: `${groupIdx * UI_CONSTANTS.ANIMATION_DELAY_MS}ms` }}
           >
             <div className={styles.dayLabel}>
               <span className={styles.dayNumber}>{group.day}</span>
