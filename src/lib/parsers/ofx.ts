@@ -1,6 +1,7 @@
 import type { ParsedStatement, Transaction } from '../types';
 import { detectCategory } from '../categories';
 import { cleanDescription } from '../utils';
+import { OFX_IGNORED_MEMOS, OFX_DATE_INDICES } from '../constants';
 
 /**
  * Parse an OFX (SGML) file into a ParsedStatement.
@@ -23,20 +24,11 @@ export function parseOfxStatement(text: string): ParsedStatement {
       const description = memoMatch[1].trim();
 
       // Ignore payments and internal adjustments
-      const ignoredMemos = [
-        'Pagamento recebido',
-        'Crédito de atraso',
-        'Saldo em atraso',
-        'Ajuste a crédito',
-        'Encerramento de dívida',
-        'Encargos',
-      ];
-
-      if (ignoredMemos.some((memo) => description.includes(memo))) continue;
+      if (OFX_IGNORED_MEMOS.some((memo) => description.includes(memo))) continue;
 
       // Format date from YYYYMMDD to DD/MM
-      const day = dateStr.substring(6, 8);
-      const month = dateStr.substring(4, 6);
+      const day = dateStr.substring(OFX_DATE_INDICES.DAY_START, OFX_DATE_INDICES.DAY_END);
+      const month = dateStr.substring(OFX_DATE_INDICES.MONTH_START, OFX_DATE_INDICES.MONTH_END);
       const formattedDate = `${day}/${month}`;
 
       const category = detectCategory(description);
