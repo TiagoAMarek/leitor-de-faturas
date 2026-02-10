@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { afterAll, beforeAll, vi } from 'vitest';
 
 // Mock pdf-parse globally
 vi.mock('pdf-parse', () => ({
