@@ -22,8 +22,11 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      handleFile(file);
+    if (file) {
+      const fileName = file.name.toLowerCase();
+      if (fileName.endsWith('.pdf') || fileName.endsWith('.ofx')) {
+        handleFile(file);
+      }
     }
   }, [handleFile]);
 
@@ -56,7 +59,7 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf"
+        accept=".pdf,.ofx"
         className={styles.hiddenInput}
         onChange={handleInputChange}
       />
@@ -78,12 +81,12 @@ export default function UploadZone({ onFileSelected, isLoading }: UploadZoneProp
             </svg>
           </div>
           <p className={styles.title}>
-            {fileName ? fileName : 'Arraste sua fatura PDF aqui'}
+            {fileName ? fileName : 'Arraste sua fatura (PDF ou OFX) aqui'}
           </p>
           <p className={styles.subtitle}>
             ou clique para selecionar o arquivo
           </p>
-          <div className={styles.badge}>PDF • Qualquer banco</div>
+          <div className={styles.badge}>PDF ou OFX • Qualquer banco</div>
         </div>
       )}
     </div>

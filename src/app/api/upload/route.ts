@@ -18,29 +18,38 @@ export async function POST(request: Request) {
       );
     }
 
-    if (file.type !== 'application/pdf') {
+    const fileName = file.name.toLowerCase();
+    const isPdf = fileName.endsWith('.pdf') || file.type === 'application/pdf';
+    const isOfx = fileName.endsWith('.ofx') || file.type === 'text/ofx' || file.type === 'application/x-ofx';
+
+    if (!isPdf && !isOfx) {
       return NextResponse.json(
-        { error: 'Formato inválido. Envie um arquivo PDF.' },
+        { error: 'Formato inválido. Envie um arquivo PDF ou OFX.' },
         { status: 400 }
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const parser = new PDFParse({ data: buffer });
-
     let fullText = '';
-    try {
-      const result = await parser.getText();
-      for (const page of result.pages) {
-        fullText += page.text + '\n';
+
+    if (isPdf) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const parser = new PDFParse({ data: buffer });
+      try {
+        const result = await parser.getText();
+        for (const page of result.pages) {
+          fullText += page.text + '\n';
+        }
+      } finally {
+        await parser.destroy();
       }
-    } finally {
-      await parser.destroy();
+    } else {
+      // OFX is text-based
+      fullText = await file.text();
     }
 
     if (!fullText.trim()) {
       return NextResponse.json(
-        { error: 'Não foi possível extrair texto do PDF. O arquivo pode ser uma imagem escaneada.' },
+        { error: 'Não foi possível extrair o conteúdo do arquivo.' },
         { status: 422 }
       );
     }
@@ -49,16 +58,16 @@ export async function POST(request: Request) {
 
     if (statement.transactions.length === 0) {
       return NextResponse.json(
-        { error: 'Nenhum lançamento encontrado no PDF. Verifique se é uma fatura de cartão de crédito.' },
+        { error: 'Nenhum lançamento encontrado no arquivo. Verifique se é uma fatura ou extrato válido.' },
         { status: 422 }
       );
     }
 
     return NextResponse.json(statement);
   } catch (error) {
-    console.error('Error processing PDF:', error);
+    console.error('Error processing file:', error);
     return NextResponse.json(
-      { error: 'Erro ao processar o PDF. Tente novamente.' },
+      { error: 'Erro ao processar o arquivo. Tente novamente.' },
       { status: 500 }
     );
   }
