@@ -6,6 +6,7 @@ import {
   ITAU_PATTERNS,
   ITAU_TRANSACTION_START_MARKERS,
   ITAU_TRANSACTION_END_MARKERS,
+  ITAU_NEXTLINE_SKIP_PREFIXES,
 } from '../constants';
 
 /**
@@ -97,9 +98,7 @@ export function parseItauStatement(text: string): ParsedStatement {
       if (
         nextLine &&
         !ITAU_PATTERNS.DATE_PREFIX.test(nextLine) &&
-        !nextLine.startsWith(ITAU_LABELS.TRANSACTIONS_BASE) &&
-        !nextLine.startsWith(ITAU_LABELS.TOTAL_BASE) &&
-        !nextLine.startsWith(ITAU_LABELS.PAYMENT_BASE)
+        !ITAU_NEXTLINE_SKIP_PREFIXES.some((prefix) => nextLine.startsWith(prefix))
       ) {
         const parts = nextLine.split(/\s{2,}/);
         const rawCat = parts[0] || '';

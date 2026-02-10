@@ -4,7 +4,6 @@
 
 // File validation constants
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-export const MAX_FILE_SIZE_MB = 10;
 
 export const SUPPORTED_FILE_EXTENSIONS = ['.pdf', '.ofx'] as const;
 export const SUPPORTED_MIME_TYPES = {
@@ -14,7 +13,7 @@ export const SUPPORTED_MIME_TYPES = {
 
 // Error messages
 export const ERROR_MESSAGES = {
-  FILE_TOO_LARGE: `Arquivo muito grande. O limite é ${MAX_FILE_SIZE_MB} MB.`,
+  FILE_TOO_LARGE: `Arquivo muito grande. O limite é ${MAX_FILE_SIZE / (1024 * 1024)} MB.`,
   NO_FILE_UPLOADED: 'Nenhum arquivo enviado',
   INVALID_FILE_FORMAT: 'Formato inválido. Envie um arquivo PDF ou OFX.',
   EMPTY_FILE_CONTENT: 'Não foi possível extrair o conteúdo do arquivo.',
@@ -42,24 +41,18 @@ export const OFX_DATE_INDICES = {
 
 // Itaú Parser constants
 export const ITAU_LABELS = {
+  // Metadata extraction
   CARD_PREFIX: 'Cartão',
   DUE_DATE_PREFIX: 'Vencimento:',
   CARD_HOLDER_PREFIX: 'Titular',
   TOTAL_LABEL: 'Total desta fatura',
   TOTAL_LABEL_ALT: 'O total da sua fatura é:',
-  TRANSACTIONS_HEADER: 'Lançamentos:',
-  TRANSACTIONS_HEADER_ALT: 'Lançamentos no cartão',
-  // Base prefixes used for nextLine detection (to avoid runtime string manipulation)
-  TRANSACTIONS_BASE: 'Lançamentos', // Matches any line starting with "Lançamentos"
-  TOTAL_TRANSACTIONS_PREFIX: 'Total dos lançamentos',
-  TOTAL_BASE: 'Total', // Matches any line starting with "Total"
-  PAYMENT_INFO_PREFIX: 'Caso você pague',
-  PAYMENT_BASE: 'Caso', // Matches any line starting with "Caso"
+  // Table headers
   TABLE_HEADER_1: 'DATA ESTABELECIMENTO VALOR EM R$',
   TABLE_HEADER_2: 'DATA VALOR EM R$',
 } as const;
 
-// Arrays for checking multiple values with .some()
+// Itaú transaction section markers
 export const ITAU_TRANSACTION_START_MARKERS = [
   'Lançamentos:',
   'Lançamentos no cartão',
@@ -68,6 +61,13 @@ export const ITAU_TRANSACTION_START_MARKERS = [
 export const ITAU_TRANSACTION_END_MARKERS = [
   'Total dos lançamentos',
   'Caso você pague',
+] as const;
+
+// Itaú nextLine detection prefixes (used to skip non-transaction lines)
+export const ITAU_NEXTLINE_SKIP_PREFIXES = [
+  'Lançamentos', // Matches transaction headers
+  'Total', // Matches total/summary lines
+  'Caso', // Matches payment info lines
 ] as const;
 
 export const ITAU_PATTERNS = {
