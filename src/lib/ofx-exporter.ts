@@ -10,19 +10,35 @@ function escapeXml(str: string): string {
     .replace(/>/g, '&gt;');
 }
 
+interface DueDateParts {
+  day: number;
+  month: number;
+  year: number;
+}
+
 /**
- * Infer the year from the dueDate field (DD/MM/YYYY format).
- * Falls back to the current year if dueDate is empty or unparseable.
+ * Parse dueDate in DD/MM/YYYY format.
+ * Returns null when dueDate is empty or unparseable.
  */
-function inferYear(dueDate: string): number {
-  if (dueDate) {
-    const parts = dueDate.split('/');
-    if (parts.length === 3) {
-      const year = parseInt(parts[2], 10);
-      if (!isNaN(year)) return year;
-    }
+function parseDueDateParts(dueDate: string): DueDateParts | null {
+  if (!dueDate) {
+    return null;
   }
-  return new Date().getFullYear();
+
+  const parts = dueDate.split('/');
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const year = parseInt(parts[2], 10);
+
+  if (Number.isNaN(day) || Number.isNaN(month) || Number.isNaN(year)) {
+    return null;
+  }
+
+  return { day, month, year };
 }
 
 /**
@@ -31,6 +47,32 @@ function inferYear(dueDate: string): number {
 function toOfxDate(dateDdMm: string, year: number): string {
   const [day, month] = dateDdMm.split('/');
   return `${year}${month}${day}`;
+}
+
+/**
+ * Infer transaction year based on dueDate month/year.
+ * If transaction month is greater than due month (year boundary), use dueYear - 1.
+ * Falls back to current year when dueDate is absent or invalid.
+ */
+function inferTransactionYear(transactionDate: string, dueDate: string): number {
+  const parsedDueDate = parseDueDateParts(dueDate);
+
+  if (!parsedDueDate) {
+    return new Date().getFullYear();
+  }
+
+  const [_, transactionMonthRaw] = transactionDate.split('/');
+  const transactionMonth = parseInt(transactionMonthRaw, 10);
+
+  if (Number.isNaN(transactionMonth)) {
+    return parsedDueDate.year;
+  }
+
+  if (transactionMonth > parsedDueDate.month) {
+    return parsedDueDate.year - 1;
+  }
+
+  return parsedDueDate.year;
 }
 
 /**
@@ -45,8 +87,6 @@ function generateFitId(dateOfx: string, index: number): string {
  * suitable for import into financial software.
  */
 export function generateOfx(statement: ParsedStatement): string {
-  const year = inferYear(statement.dueDate);
-
   const header = [
     'OFXHEADER:100',
     'DATA:OFXSGML',
@@ -61,6 +101,7 @@ export function generateOfx(statement: ParsedStatement): string {
 
   const transactions = statement.transactions
     .map((tx, i) => {
+      const year = inferTransactionYear(tx.date, statement.dueDate);
       const dateOfx = toOfxDate(tx.date, year);
       const fitId = generateFitId(dateOfx, i);
       const amount = (-Math.abs(tx.amount)).toFixed(2);

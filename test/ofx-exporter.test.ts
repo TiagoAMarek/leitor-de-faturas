@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { generateOfx } from '@/lib/ofx-exporter';
 import type { ParsedStatement } from '@/lib/parser';
 
@@ -44,6 +44,22 @@ describe('generateOfx', () => {
     expect(ofx).toContain('<DTPOSTED>20241101</DTPOSTED>');
     expect(ofx).toContain('<DTPOSTED>20241105</DTPOSTED>');
     expect(ofx).toContain('<DTPOSTED>20241118</DTPOSTED>');
+  });
+
+  it('should infer transaction year by due month on year boundary', () => {
+    const statement = createMinimalStatement({
+      dueDate: '15/01/2025',
+      transactions: [
+        { date: '20/12', description: 'SUPERMERCADO', category: 'mercado', amount: 50.0, city: 'Porto Alegre' },
+        { date: '05/01', description: 'PADARIA', category: 'alimentação', amount: 20.0, city: 'Porto Alegre' },
+      ],
+    });
+    const ofx = generateOfx(statement);
+
+    expect(ofx).toContain('<DTPOSTED>20241220</DTPOSTED>');
+    expect(ofx).toContain('<DTPOSTED>20250105</DTPOSTED>');
+    expect(ofx).toContain('<FITID>202412200000</FITID>');
+    expect(ofx).toContain('<FITID>202501050001</FITID>');
   });
 
   it('should export amounts as negative values', () => {
